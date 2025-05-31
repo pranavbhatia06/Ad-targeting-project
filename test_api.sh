@@ -75,7 +75,7 @@ test_endpoint "GET" "/api/v1/campaigns?app=unknownapp&country=unknown&os=unknown
 test_endpoint "GET" "/api/v1/campaigns?app=myapp&country=india" "" "Missing OS Parameter"
 
 # Test 8: Refresh Targeting Data
-test_endpoint "POST" "/api/v1/refresh-targeting" "" "Refresh Targeting Data"
+test_endpoint "POST" "/api/v1/refresh" "" "Refresh Targeting Data"
 
 # Test 9: Get Campaigns after refresh
 test_endpoint "GET" "/api/v1/campaigns?app=myapp&country=india&os=android&limit=1" "" "Get Campaigns After Refresh"
