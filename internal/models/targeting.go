@@ -20,6 +20,7 @@ const (
 	DimensionApp     Dimension = "APP"
 	DimensionCountry Dimension = "COUNTRY"
 	DimensionOS      Dimension = "OS"
+	DimensionsState  Dimension = "STATE"
 )
 
 // TargetingRule represents a targeting rule for a campaign
@@ -38,6 +39,7 @@ type DeliveryRequest struct {
 	App     string `json:"app"`
 	Country string `json:"country"`
 	OS      string `json:"os"`
+	State   string `json:"state"`
 	Limit   int    `json:"limit,omitempty"`
 }
 
@@ -115,6 +117,8 @@ func (te *TargetingEngine) matchesDimension(dimension Dimension, rules []Targeti
 		requestValue = strings.ToLower(request.Country)
 	case DimensionOS:
 		requestValue = strings.ToLower(request.OS)
+	case DimensionsState:
+		requestValue = strings.ToLower(request.State)
 	}
 
 	hasInclude := false

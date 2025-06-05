@@ -123,6 +123,8 @@ func SeedData(db *sql.DB) error {
 		{"duolingo", "EXCLUDE", "COUNTRY", []string{"us"}},
 		{"subwaysurfer", "INCLUDE", "OS", []string{"android"}},
 		{"subwaysurfer", "INCLUDE", "APP", []string{"com.gametion.ludokinggame"}},
+		{"spotify", "EXCLUDE", "STATE", []string{"Telangana"}},
+		{"duolingo", "INCLUDE", "STATE", []string{"Delhi"}},
 	}
 
 	for _, rule := range rules {
