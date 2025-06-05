@@ -1,9 +1,102 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
+
+// State-Country mappings for validation
+var stateCountryMap = map[string]string{
+	// India states
+	"delhi":            "india",
+	"maharashtra":      "india",
+	"karnataka":        "india",
+	"tamil nadu":       "india",
+	"telangana":        "india",
+	"andhra pradesh":   "india",
+	"gujarat":          "india",
+	"rajasthan":        "india",
+	"uttar pradesh":    "india",
+	"west bengal":      "india",
+	"punjab":           "india",
+	"haryana":          "india",
+	"kerala":           "india",
+	"odisha":           "india",
+	"bihar":            "india",
+	"jharkhand":        "india",
+	"assam":            "india",
+	"himachal pradesh": "india",
+	"uttarakhand":      "india",
+	"goa":              "india",
+
+	// US states
+	"california":     "us",
+	"new york":       "us",
+	"texas":          "us",
+	"florida":        "us",
+	"illinois":       "us",
+	"pennsylvania":   "us",
+	"ohio":           "us",
+	"georgia":        "us",
+	"north carolina": "us",
+	"michigan":       "us",
+	"new jersey":     "us",
+	"virginia":       "us",
+	"washington":     "us",
+	"arizona":        "us",
+	"massachusetts":  "us",
+	"tennessee":      "us",
+	"indiana":        "us",
+	"missouri":       "us",
+	"maryland":       "us",
+	"wisconsin":      "us",
+
+	// Canada provinces
+	"ontario":                   "canada",
+	"quebec":                    "canada",
+	"british columbia":          "canada",
+	"alberta":                   "canada",
+	"manitoba":                  "canada",
+	"saskatchewan":              "canada",
+	"nova scotia":               "canada",
+	"new brunswick":             "canada",
+	"newfoundland and labrador": "canada",
+	"prince edward island":      "canada",
+
+	// UK countries/regions
+	"england":          "uk",
+	"scotland":         "uk",
+	"wales":            "uk",
+	"northern ireland": "uk",
+	"london":           "uk",
+
+	// Australia states
+	"new south wales":              "australia",
+	"victoria":                     "australia",
+	"queensland":                   "australia",
+	"western australia":            "australia",
+	"south australia":              "australia",
+	"tasmania":                     "australia",
+	"northern territory":           "australia",
+	"australian capital territory": "australia",
+}
+
+// Country aliases for flexible matching
+var countryAliases = map[string]string{
+	"in":             "india",
+	"ind":            "india",
+	"us":             "us",
+	"usa":            "us",
+	"united states":  "us",
+	"ca":             "canada",
+	"can":            "canada",
+	"uk":             "uk",
+	"gb":             "uk",
+	"united kingdom": "uk",
+	"au":             "australia",
+	"aus":            "australia",
+}
 
 // RuleType represents the type of targeting rule
 type RuleType string
@@ -43,7 +136,7 @@ type DeliveryRequest struct {
 	Limit   int    `json:"limit,omitempty"`
 }
 
-// Validate checks if the delivery request has all required fields
+// Validate checks if the delivery request has all required fields and validates state-country combination
 func (dr *DeliveryRequest) Validate() error {
 	if dr.App == "" {
 		return ErrMissingAppParam
@@ -54,6 +147,39 @@ func (dr *DeliveryRequest) Validate() error {
 	if dr.OS == "" {
 		return ErrMissingOSParam
 	}
+
+	// Validate state-country combination if both are provided
+	if dr.State != "" && dr.Country != "" {
+		if err := dr.validateStateCountry(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// validateStateCountry validates that the state belongs to the specified country
+func (dr *DeliveryRequest) validateStateCountry() error {
+	stateName := strings.ToLower(strings.TrimSpace(dr.State))
+	countryName := strings.ToLower(strings.TrimSpace(dr.Country))
+
+	// Normalize country name using aliases
+	if alias, exists := countryAliases[countryName]; exists {
+		countryName = alias
+	}
+
+	// Check if state exists in our mapping
+	expectedCountry, stateExists := stateCountryMap[stateName]
+	if !stateExists {
+		return fmt.Errorf("unknown state: '%s'", dr.State)
+	}
+
+	// Check if state belongs to the specified country
+	if expectedCountry != countryName {
+		return fmt.Errorf("invalid state-country combination: state '%s' does not belong to country '%s' (belongs to '%s')",
+			dr.State, dr.Country, expectedCountry)
+	}
+
 	return nil
 }
 
