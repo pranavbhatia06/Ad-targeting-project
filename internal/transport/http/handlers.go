@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -29,9 +28,9 @@ func (h *Handler) GetCampaigns(c *gin.Context) {
 	request := models.DeliveryRequest{
 		App:     c.Query("app"),
 		Country: c.Query("country"),
+		State:   c.Query("state"),
 		OS:      c.Query("os"),
 	}
-	fmt.Println(request)
 
 	// Parse optional limit parameter
 	if limitStr := c.Query("limit"); limitStr != "" {
